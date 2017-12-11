@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/popup_background"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <ImageView
+        android:id="@+id/set_color"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:layout_weight="1"
+        android:src="@android:drawable/sym_contact_card" />
+
+    <View
+
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:background="#000000" />
+
+    <ImageView
+        android:id="@+id/set_rotate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:layout_weight="1"
+        android:src="@android:drawable/ic_menu_rotate" />
+
+    <View
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:background="#000000" />
+
+    <ImageView
+        android:id="@+id/close"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:layout_weight="1"
+        android:src="@android:drawable/ic_menu_close_clear_cancel" />
+
+</LinearLayout>
