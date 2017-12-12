@@ -2,7 +2,6 @@ package com.zyc.ss.osd;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.os.Build;
@@ -23,7 +22,7 @@ import android.widget.TextView;
  * Created by Administrator on 2017/12/10.
  */
 
-public class OsdRelativeLayout extends RelativeLayout {
+public class OsdRelativeLayoutBak extends RelativeLayout {
     private String tag = getClass().getSimpleName();
     public PopupWindow popupWindow;
     public int popupWindowMargin = 20;
@@ -38,7 +37,7 @@ public class OsdRelativeLayout extends RelativeLayout {
     private View touchedView;
     private DrawerLayout drawerLayout;
 
-    public OsdRelativeLayout(Context context) {
+    public OsdRelativeLayoutBak(Context context) {
         super(context);
         init();
 
@@ -48,18 +47,18 @@ public class OsdRelativeLayout extends RelativeLayout {
         setWillNotDraw(false);
     }
 
-    public OsdRelativeLayout(Context context, AttributeSet attrs) {
+    public OsdRelativeLayoutBak(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public OsdRelativeLayout(Context context, AttributeSet attrs, int defStyleAttr) {
+    public OsdRelativeLayoutBak(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public OsdRelativeLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public OsdRelativeLayoutBak(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init();
     }
@@ -71,7 +70,7 @@ public class OsdRelativeLayout extends RelativeLayout {
             child.setOnTouchListener(new OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-                    RelativeLayout.LayoutParams layoutParams = null;
+                    LayoutParams layoutParams = null;
                     float currX = event.getX();
                     float currY = event.getY();
                     switch (event.getAction() & MotionEvent.ACTION_MASK) {

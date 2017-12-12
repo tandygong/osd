@@ -5,17 +5,19 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
-import android.graphics.RectF;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 /**
  * Created by Administrator on 2017/12/10.
@@ -30,34 +32,40 @@ public class OsdRelativeLayout extends RelativeLayout {
     private boolean hasMove;
     private int popHeight;
     private int popWidth;
-    private float startX;
-    private float startY;
+
+    private float mTextView;
     private View touchedView;
+    private DrawerLayout drawerLayout;
 
     public OsdRelativeLayout(Context context) {
         super(context);
+        init();
+
+    }
+
+    private void init() {
         setWillNotDraw(false);
     }
 
     public OsdRelativeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        setWillNotDraw(false);
+        init();
     }
 
     public OsdRelativeLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        setWillNotDraw(false);
+        init();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public OsdRelativeLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        setWillNotDraw(false);
+        init();
     }
 
     @Override
     public void addView(final View child) {
-        if (child instanceof OsdWarpView) {
+      /*  if (child instanceof OsdWarpView) {
             Log.e("OsdRelativeLayout", "is OsdWarpView");
             child.setOnTouchListener(new OnTouchListener() {
                 @Override
@@ -67,6 +75,7 @@ public class OsdRelativeLayout extends RelativeLayout {
                     float currY = event.getY();
                     switch (event.getAction() & MotionEvent.ACTION_MASK) {
                         case MotionEvent.ACTION_DOWN:
+                            closeDrawLayout();
                             touchedView = v;
                             Log.e("action", "ACTION_DOWN");
                             layoutParams = (LayoutParams) v.getLayoutParams();
@@ -115,6 +124,7 @@ public class OsdRelativeLayout extends RelativeLayout {
                                 layoutParams = (LayoutParams) v.getLayoutParams();
                                 layoutParams.setMargins(left, top, 0, 0);
                                 v.setLayoutParams(layoutParams);
+                                v.setAlpha(0.5f);
                                 if (popupWindow != null && popupWindow.isShowing()) {
                                     popupWindow.update(v, (v.getWidth() - popWidth) / 2, getOffSetY(v), popupWindow.getWidth(), popupWindow.getHeight());
                                 }
@@ -126,6 +136,7 @@ public class OsdRelativeLayout extends RelativeLayout {
                                 v.performClick();
                                 showPopWindow(v);
                             }
+                            v.setAlpha(1.0f);
                             hasMove = false;
 
                             Log.e("action", "ACTION_UP");
@@ -138,7 +149,7 @@ public class OsdRelativeLayout extends RelativeLayout {
             });
         } else {
             Log.e("OsdRelativeLayout", "add view not OsdWarpView");
-        }
+        }*/
         super.addView(child);
     }
 
@@ -149,24 +160,17 @@ public class OsdRelativeLayout extends RelativeLayout {
     protected void onDraw(Canvas canvas) {
 
         if (touchedView != null) {
-            View childAt = getChildAt(0);
+            View childAt = getChildAt(1);
             if (childAt != null) {
                 paint.setStyle(Paint.Style.FILL_AND_STROKE);
                 paint.setColor(0x200000ff);
                 int centerX = (childAt.getLeft() + childAt.getRight()) / 2;
                 int centerY = (childAt.getTop() + childAt.getBottom()) / 2;
                 Log.e("centerX", centerX + "");
-                rect.set(centerX - 350, centerY -350, centerX + 350, centerY + 350);
+                rect.set(centerX - 350, centerY - 350, centerX + 350, centerY + 350);
                 canvas.drawRect(rect, paint);
             }
         }
-
-
-        int Rx = getWidth() / 2;
-        int Ry = getHeight() / 2;
-        paint.setColor(Color.BLACK);
-        paint.setStrokeWidth(6);
-        canvas.drawPoint(Rx, Ry, paint);
         Log.e("draw", "draw");
         super.onDraw(canvas);
     }
@@ -194,12 +198,70 @@ public class OsdRelativeLayout extends RelativeLayout {
         }
     }
 
+    @Override
+    protected void onFinishInflate() {
+        drawerLayout = findViewById(R.id.draw_layout);
+        drawerLayout.openDrawer(Gravity.LEFT);
+        TextView addOsdText = drawerLayout.findViewById(R.id.osd_text);
+        TextView addOsdImage = drawerLayout.findViewById(R.id.osd_image);
+        addOsdText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(tag,"clickAddOsd");
+                closeDrawLayout();
+            }
+        });
+        addOsdImage.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(tag,"clickAddImage");
+                closeDrawLayout();
+            }
+        });
+
+        drawerLayout.setOnTouchListener(new OnTouchListener() {
+           @Override
+           public boolean onTouch(View v, MotionEvent event) {
+               switch (event.getAction()&MotionEvent.ACTION_MASK) {
+                   case MotionEvent.ACTION_DOWN:
+                       dismissPopWindow();
+                       break;
+               }
+               return false;
+           }
+       });
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                Log.e("aaa", "onDrawerOpened");
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
+        super.onFinishInflate();
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
+                Log.e(tag, "ACTION_DOWN");
                 dismissPopWindow();
+                closeDrawLayout();
                 break;
             case MotionEvent.ACTION_MOVE:
                 hasMove = true;
@@ -213,5 +275,11 @@ public class OsdRelativeLayout extends RelativeLayout {
                 break;
         }
         return super.onTouchEvent(event);
+    }
+
+    private void closeDrawLayout() {
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawer(Gravity.LEFT);
+        }
     }
 }
