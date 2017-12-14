@@ -17,20 +17,27 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        OsdRelativeLayout osdRelativeLayout = findViewById(R.id.osdRelativeLayout);
+      /*  OsdRelativeLayout osdRelativeLayout = findViewById(R.id.osdRelativeLayout);
+
+        OsdWarpView osdPanel = new OsdWarpView(this);
+
         TextView textView = new TextView(this);
         textView.setText("Hello");
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.addRule(RelativeLayout.CENTER_IN_PARENT);
 
-        OsdWarpView warpTextView = new OsdWarpView(this, textView);
-        osdRelativeLayout.addView(warpTextView);
+
+        OsdWarpView warpTextView = new OsdWarpView(this);
+        warpTextView.addView(textView);
+        osdPanel.addView(warpTextView);
 
         RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
         ImageView imageView = new ImageView(this);
         imageView.setImageResource(R.mipmap.ic_launcher_round);
         layoutParams1.addRule(RelativeLayout.BELOW, warpTextView.getId());
         layoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        osdRelativeLayout.addView(new OsdWarpView(this, imageView));
+        OsdWarpView osdImageView = new OsdWarpView(this);
+        osdImageView.addView(imageView);
+
+        osdPanel.addView(osdImageView);
+*/
     }
 }

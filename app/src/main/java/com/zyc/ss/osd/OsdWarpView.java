@@ -27,11 +27,11 @@ public class OsdWarpView extends RelativeLayout {
     private int popHeight;
 
 
-    public OsdWarpView(Context context, View warpedView) {
+    public OsdWarpView(Context context) {
         super(context);
-        addView(warpedView);
         setWillNotDraw(false);
     }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -106,7 +106,7 @@ public class OsdWarpView extends RelativeLayout {
                     if (popupWindow != null && popupWindow.isShowing()) {
                         popupWindow.update(this, (getWidth() - popWidth) / 2, getOffSetY(), popupWindow.getWidth(), popupWindow.getHeight());
                     } else {
-                        requestCloseOtherWindow();
+                        requestCloseAllWindow();
                     }
 
                 }
@@ -127,7 +127,7 @@ public class OsdWarpView extends RelativeLayout {
     }
 
     private void showPopupWindow() {
-        requestCloseOtherWindow();
+        requestCloseAllWindow();
         LinearLayout layout = (LinearLayout) (View.inflate(getContext(), R.layout.window_popup, null));
         layout.measure(0, 0);
         popupWindow = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
@@ -143,23 +143,56 @@ public class OsdWarpView extends RelativeLayout {
         return getTop() >= minYSpace ? -(popHeight + getHeight() + popupWindowMargin) : popupWindowMargin;
     }
 
-    private void closePopupWindow() {
+    private void closeSelfWindow() {
         if (popupWindow != null && popupWindow.isShowing()) {
             popupWindow.dismiss();
             popupWindow = null;
         }
     }
 
-    private void requestCloseOtherWindow() {
-        closePopupWindow();
-        ViewParent parent = getParent();
+    public void requestCloseAllWindow() {
+        ViewParent parent = getRootParent();
+        if (parent != null) {
+            dispatchCloseAllWindow();
+        } else {
+            closeSelfAndChildWindow();
+        }
+
+    }
+
+    public ViewParent getRootParent() {
+        ViewParent parentView = getParent();
+        if (parentView != null) {
+            ViewParent root = parentView;
+            while (parentView.getParent() != null && !(parentView instanceof OsdRelativeLayout)) {
+                parentView = parentView.getParent();
+                root = parentView;
+            }
+            return root;
+        } else {
+            return null;
+        }
+    }
+
+    private void dispatchCloseAllWindow() {
+        ViewParent parent = getRootParent();
         if (parent != null) {
             ViewGroup viewGroup = (ViewGroup) parent;
             for (int i = 0; i < viewGroup.getChildCount(); i++) {
                 View child = viewGroup.getChildAt(i);
                 if (child instanceof OsdWarpView) {
-                    ((OsdWarpView) child).closePopupWindow();
+                    ((OsdWarpView) child).closeSelfAndChildWindow();
                 }
+            }
+        }
+    }
+
+    private void closeSelfAndChildWindow() {
+        closeSelfWindow();
+        for (int i = 0; i < getChildCount(); i++) {
+            View child = getChildAt(i);
+            if (child instanceof OsdWarpView) {
+                ((OsdWarpView) child).closeSelfAndChildWindow();
             }
         }
     }

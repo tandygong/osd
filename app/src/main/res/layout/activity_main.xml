@@ -69,7 +69,7 @@
 
                 <CheckBox
                     android:layout_alignParentBottom="true"
-                    style="@style/Widget.AppCompat.CompoundButton.CheckBox"
+                    style="@style/Base.Widget.AppCompat.CompoundButton.CheckBox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
