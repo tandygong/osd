@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Osd.iml" filepath="$PROJECT_DIR$/Osd.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/osd.iml" filepath="$PROJECT_DIR$/.idea/osd.iml" />
+      <module fileurl="file://G:\workspace\Osd\.idea\osd.iml" filepath="G:\workspace\Osd\.idea\osd.iml" />
     </modules>
   </component>
 </project>

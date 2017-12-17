@@ -16,7 +16,7 @@ import android.widget.RelativeLayout;
  */
 
 public class OsdWarpView extends RelativeLayout {
-    private String tag = "OsdWarpView";
+    public String tag = "OsdWarpView@" + Integer.toHexString(this.hashCode());
     PopupWindow popupWindow;
     int popupWindowMargin = 20;
     private boolean hasMove;
@@ -25,11 +25,20 @@ public class OsdWarpView extends RelativeLayout {
     public static final int START_DRAG_MIN_DISTANCE = 60;
     private int popWidth;
     private int popHeight;
+    public final static int MODE_FORBID_MOVE = 1;
+    public final static int MODE_EDIT = 2;
+    private int mode = 0;
+    private boolean interceptChildEvent = false;
 
 
     public OsdWarpView(Context context) {
         super(context);
+        setBackgroundResource(R.drawable.warp_view_bg);
         setWillNotDraw(false);
+    }
+
+    public void setInterceptChildEvent(boolean interceptChildEvent) {
+        this.interceptChildEvent = interceptChildEvent;
     }
 
 
@@ -40,13 +49,19 @@ public class OsdWarpView extends RelativeLayout {
 
 
     @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        getParent().requestDisallowInterceptTouchEvent(true);
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
     public boolean onTouchEvent(MotionEvent event) {
         RelativeLayout.LayoutParams layoutParams = null;
         float currX = event.getX();
         float currY = event.getY();
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                Log.e("action", "ACTION_DOWN");
+                Log.e(tag, "ACTION_DOWN");
                 layoutParams = (LayoutParams) getLayoutParams();
                 int leftMargin = getLeft();
                 int topMargin = getTop();
@@ -62,21 +77,25 @@ public class OsdWarpView extends RelativeLayout {
                 startY = currY;
                 return true;
             case MotionEvent.ACTION_CANCEL:
-                Log.e("action", "ACTION_CANCEL");
+                Log.e(tag, "ACTION_CANCEL");
                 break;
             case MotionEvent.ACTION_MOVE:
+                Log.e(tag, "ACTION_MOVE");
+                if (mode == MODE_FORBID_MOVE) {
+                    return false;
+                }
                 if (!hasMove) {
                     double distance = Math.sqrt(Math.pow(startX - currX, 2) + Math.pow(startY - currY, 2));
-                    Log.e("distance", distance + "");
+                    //  Log.e("distance", distance + "");
                     if (distance > START_DRAG_MIN_DISTANCE) {
                         hasMove = true;
                     }
                 }
                 if (hasMove) {
-                    Log.e(tag, getLeft() + ":::" + getTop());
+                    //  Log.e(tag, getLeft() + ":::" + getTop());
                     float dx = currX - startX;
                     float dy = currY - startY;
-                    Log.e(tag, "dx" + dx);
+                    //     Log.e(tag, "dx" + dx);
                     int left = getLeft() + (int) dx;
                     int top = getTop() + (int) dy;
                     int right = getRight() + (int) dx;
@@ -100,18 +119,19 @@ public class OsdWarpView extends RelativeLayout {
                     layoutParams = (LayoutParams) getLayoutParams();
                     layoutParams.setMargins(left, top, 0, 0);
                     //layout(left, top, right, bottom);
-                    Log.e(tag, "left " + left + " top" + top);
+                    //  Log.e(tag, "left " + left + " top" + top);
                     setLayoutParams(layoutParams);
                     setAlpha(0.5f);
                     if (popupWindow != null && popupWindow.isShowing()) {
                         popupWindow.update(this, (getWidth() - popWidth) / 2, getOffSetY(), popupWindow.getWidth(), popupWindow.getHeight());
                     } else {
-                        requestCloseAllWindow();
+                        showPopupWindow();
                     }
 
                 }
                 break;
             case MotionEvent.ACTION_UP:
+                interceptChildEvent = false;
                 if (!hasMove) {
                     performClick();
                     showPopupWindow();
@@ -119,14 +139,38 @@ public class OsdWarpView extends RelativeLayout {
                 setAlpha(1.0f);
                 hasMove = false;
 
-                Log.e("action", "ACTION_UP");
+                Log.e(tag, "ACTION_UP");
                 break;
 
         }
         return super.onTouchEvent(event);
     }
 
-    private void showPopupWindow() {
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+
+        switch (ev.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                Log.e(tag, "onInterceptTouchEvent:" + "ACTION_DOWN");
+                return false;//父布局拦截事件
+
+            case MotionEvent.ACTION_MOVE:   //表示父类需要
+                Log.e(tag, "onInterceptTouchEvent:" + "ACTION_MOVE");
+                return true;
+            case MotionEvent.ACTION_UP:
+                Log.e(tag, "onInterceptTouchEvent:" + "ACTION_UP");
+                return false;
+            default:
+                break;
+        }
+
+
+        return false;    //如果设置拦截，除了down,其他都是父类处理
+    }
+
+
+    public void showPopupWindow() {
         requestCloseAllWindow();
         LinearLayout layout = (LinearLayout) (View.inflate(getContext(), R.layout.window_popup, null));
         layout.measure(0, 0);
@@ -136,6 +180,21 @@ public class OsdWarpView extends RelativeLayout {
         Log.e("OsdWarpView", "popHeight:" + popHeight + ":::popWidth" + popWidth);
         int offSetY = getOffSetY();
         popupWindow.showAsDropDown(this, (getWidth() - popWidth) / 2, offSetY);
+        layout.findViewById(R.id.lock_self).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mode == MODE_FORBID_MOVE) {
+                    mode = 0;
+                } else {
+                    mode = MODE_FORBID_MOVE;
+                }
+            }
+        });
+        setSelected(true);
+    }
+
+    @Override
+    public void dispatchSetSelected(boolean selected) {
     }
 
     private int getOffSetY() {
@@ -148,6 +207,7 @@ public class OsdWarpView extends RelativeLayout {
             popupWindow.dismiss();
             popupWindow = null;
         }
+        setSelected(false);
     }
 
     public void requestCloseAllWindow() {
@@ -195,5 +255,9 @@ public class OsdWarpView extends RelativeLayout {
                 ((OsdWarpView) child).closeSelfAndChildWindow();
             }
         }
+    }
+
+    public void setMode(int mode) {
+        this.mode = mode;
     }
 }

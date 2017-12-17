@@ -1,13 +1,9 @@
 package com.zyc.ss.osd;
 
 import android.content.Context;
-import android.graphics.Canvas;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
-import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,31 +16,23 @@ import android.widget.TextView;
 
 public class OsdRelativeLayout extends RelativeLayout {
     private String tag = getClass().getSimpleName();
-    private DrawerLayout drawerLayout;
+
     public OsdRelativeLayout(Context context) {
         super(context);
         init();
 
     }
-    private void init() {
-        setWillNotDraw(false);
-        OnTouchListener touchWarpViewListener = new OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                closeDrawLayout();
-                return false;
-            }
-        };
 
+    private void init() {
         OsdWarpView osdPanel = new OsdWarpView(getContext());
 
         TextView textView = new TextView(getContext());
-        textView.setText("Hello");
-
+        textView.setCursorVisible(true);
+        textView.setHint("你的号大");
+       // textView.setText("Hello");
 
 
         OsdWarpView warpTextView = new OsdWarpView(getContext());
-        warpTextView.setOnTouchListener(touchWarpViewListener);
         warpTextView.addView(textView);
         osdPanel.addView(warpTextView);
 
@@ -56,12 +44,10 @@ public class OsdRelativeLayout extends RelativeLayout {
         layoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
         OsdWarpView osdImageView = new OsdWarpView(getContext());
         osdImageView.addView(imageView);
-        osdImageView.setOnTouchListener(touchWarpViewListener);
 
         osdPanel.addView(osdImageView);
-        osdPanel.setBackgroundColor(0x600000ff);
+        osdPanel.setBackgroundResource(R.drawable.warp_view_panel_bg);
 
-        osdPanel.setOnTouchListener(touchWarpViewListener );
         addView(osdPanel, 700, 700);
     }
 
@@ -81,80 +67,11 @@ public class OsdRelativeLayout extends RelativeLayout {
         init();
     }
 
-    @Override
-    protected void onFinishInflate() {
-        drawerLayout = findViewById(R.id.draw_layout);
-        drawerLayout.openDrawer(Gravity.LEFT);
-        TextView addOsdText = drawerLayout.findViewById(R.id.osd_text);
-        TextView addOsdImage = drawerLayout.findViewById(R.id.osd_image);
-        addOsdText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.e(tag, "clickAddOsd");
-                closeDrawLayout();
-            }
-        });
-        addOsdImage.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.e(tag, "clickAddImage");
-                closeDrawLayout();
-            }
-        });
-
-
-        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-                Log.e("aaa", "onDrawerOpened");
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-
-            }
-
-            @Override
-            public void onDrawerStateChanged(int newState) {
-
-            }
-        });
-
-        super.onFinishInflate();
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        boolean b = super.dispatchTouchEvent(ev);
-        if (!b) {
-            switch (ev.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    Log.e(tag, "ACTION_DOWN");
-                    closeDrawLayout();
-                    for (int i = 0; i < getChildCount(); i++) {
-                        View childAt = getChildAt(i);
-                        if (childAt instanceof OsdWarpView) {
-                            ((OsdWarpView) childAt).requestCloseAllWindow();
-                            break;
-                        }
-                    }
-                    break;
-            }
-        }
-        return b;
-    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-      /*  switch (event.getAction() & MotionEvent.ACTION_MASK) {
+        switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                Log.e(tag, "ACTION_DOWN");
-                closeDrawLayout();
                 for (int i = 0; i < getChildCount(); i++) {
                     View childAt = getChildAt(i);
                     if (childAt instanceof OsdWarpView) {
@@ -163,24 +80,12 @@ public class OsdRelativeLayout extends RelativeLayout {
                     }
                 }
                 break;
-            case MotionEvent.ACTION_MOVE:
-                hasMove = true;
-                break;
-            case MotionEvent.ACTION_UP:
-                if (!hasMove) {
-                    performClick();
-                }
-                invalidate();
-                hasMove = false;
-                break;
-        }*/
+        }
         return super.onTouchEvent(event);
     }
 
 
-    private void closeDrawLayout() {
-        if (drawerLayout != null) {
-            drawerLayout.closeDrawer(Gravity.LEFT);
-        }
+    public OsdWarpView getOsdPanel() {
+        return (OsdWarpView) getChildAt(0);
     }
 }

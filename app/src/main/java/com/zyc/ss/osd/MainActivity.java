@@ -5,39 +5,87 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+    String tag = "mainActivity";
+    private DrawerLayout drawerLayout;
 
-
+    private OsdRelativeLayout osdRelativeLayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-      /*  OsdRelativeLayout osdRelativeLayout = findViewById(R.id.osdRelativeLayout);
-
-        OsdWarpView osdPanel = new OsdWarpView(this);
-
-        TextView textView = new TextView(this);
-        textView.setText("Hello");
+        osdRelativeLayout = findViewById(R.id.osdRelativeLayout);
 
 
-        OsdWarpView warpTextView = new OsdWarpView(this);
-        warpTextView.addView(textView);
-        osdPanel.addView(warpTextView);
+        drawerLayout = findViewById(R.id.draw_layout);
+        drawerLayout.openDrawer(Gravity.LEFT);
+        TextView addOsdText = drawerLayout.findViewById(R.id.osd_text);
+        TextView addOsdImage = drawerLayout.findViewById(R.id.osd_image);
+        addOsdText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(tag, "clickAddOsd");
+                final EditText editText = new EditText(MainActivity.this);
+                editText.setHint("请输入...");
+                editText.setPadding(0, 0, 0, 0);
+              //  editText.setFocusableInTouchMode(false);
 
-        RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        ImageView imageView = new ImageView(this);
-        imageView.setImageResource(R.mipmap.ic_launcher_round);
-        layoutParams1.addRule(RelativeLayout.BELOW, warpTextView.getId());
-        layoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        OsdWarpView osdImageView = new OsdWarpView(this);
-        osdImageView.addView(imageView);
+                editText.setBackgroundResource(R.drawable.bg_edittext);
+                final OsdWarpView osdVIew = new OsdWarpView(MainActivity.this);
 
-        osdPanel.addView(osdImageView);
-*/
+              //  osdVIew.setInterceptChildEvent(true);
+               // TextView textView = new TextView(MainActivity.this);
+               // textView.setText("你好");
+                osdVIew.addView(editText);
+
+                osdRelativeLayout.getOsdPanel().addView(osdVIew);
+                closeDrawLayout();
+            }
+        });
+        addOsdImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e(tag, "clickAddImage");
+                closeDrawLayout();
+            }
+        });
+
+
+
+        drawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                Log.e("aaa", "onDrawerOpened");
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
+    }
+
+    private void closeDrawLayout() {
+        if (drawerLayout != null) {
+            drawerLayout.closeDrawer(Gravity.LEFT);
+        }
     }
 }
