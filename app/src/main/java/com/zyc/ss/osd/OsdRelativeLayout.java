@@ -25,6 +25,7 @@ public class OsdRelativeLayout extends RelativeLayout {
 
     private void init() {
         OsdWarpView osdPanel = new OsdWarpView(getContext());
+        osdPanel.tag = "OsdViewParent";
 
         TextView textView = new TextView(getContext());
         textView.setCursorVisible(true);
@@ -33,6 +34,7 @@ public class OsdRelativeLayout extends RelativeLayout {
 
 
         OsdWarpView warpTextView = new OsdWarpView(getContext());
+        warpTextView.tag = "osdTextView";
         warpTextView.addView(textView);
         osdPanel.addView(warpTextView);
 
@@ -43,6 +45,7 @@ public class OsdRelativeLayout extends RelativeLayout {
         layoutParams1.addRule(RelativeLayout.BELOW, warpTextView.getId());
         layoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
         OsdWarpView osdImageView = new OsdWarpView(getContext());
+        osdImageView.tag = "osdImageView";
         osdImageView.addView(imageView);
 
         osdPanel.addView(osdImageView);

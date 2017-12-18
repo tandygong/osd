@@ -31,14 +31,23 @@ public class MainActivity extends AppCompatActivity {
         addOsdText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                final OsdWarpView osdVIew = new OsdWarpView(MainActivity.this);
+                osdVIew.tag = "osdEditTextView";
                 Log.e(tag, "clickAddOsd");
                 final EditText editText = new EditText(MainActivity.this);
                 editText.setHint("请输入...");
+              /*  editText.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        osdVIew.showPopupWindow();
+                        return false;
+                    }
+                });*/
                 editText.setPadding(0, 0, 0, 0);
               //  editText.setFocusableInTouchMode(false);
 
                 editText.setBackgroundResource(R.drawable.bg_edittext);
-                final OsdWarpView osdVIew = new OsdWarpView(MainActivity.this);
+
 
               //  osdVIew.setInterceptChildEvent(true);
                // TextView textView = new TextView(MainActivity.this);

@@ -29,6 +29,7 @@ public class OsdWarpView extends RelativeLayout {
     public final static int MODE_EDIT = 2;
     private int mode = 0;
     private boolean interceptChildEvent = false;
+    private boolean hasBringToTop = false;
 
 
     public OsdWarpView(Context context) {
@@ -62,19 +63,7 @@ public class OsdWarpView extends RelativeLayout {
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 Log.e(tag, "ACTION_DOWN");
-                layoutParams = (LayoutParams) getLayoutParams();
-                int leftMargin = getLeft();
-                int topMargin = getTop();
-                ViewParent parent = getParent();
-                if (parent != null) {
-                    ViewGroup viewGroup = (ViewGroup) parent;
-                    viewGroup.removeView(this);
-                    layoutParams.leftMargin = leftMargin;
-                    layoutParams.topMargin = topMargin;
-                    viewGroup.addView(this, layoutParams);
-                }
-                startX = currX;
-                startY = currY;
+                setStartPoint(currX, currY);
                 return true;
             case MotionEvent.ACTION_CANCEL:
                 Log.e(tag, "ACTION_CANCEL");
@@ -125,7 +114,7 @@ public class OsdWarpView extends RelativeLayout {
                     if (popupWindow != null && popupWindow.isShowing()) {
                         popupWindow.update(this, (getWidth() - popWidth) / 2, getOffSetY(), popupWindow.getWidth(), popupWindow.getHeight());
                     } else {
-                        showPopupWindow();
+                        requestCloseAllWindow();
                     }
 
                 }
@@ -146,14 +135,38 @@ public class OsdWarpView extends RelativeLayout {
         return super.onTouchEvent(event);
     }
 
+    private void setStartPoint(float currX, float currY) {
+        Log.e(tag, "setStartPoint");
+        startX = currX;
+        startY = currY;
+    }
+
+
+    private void bringSelfToTop() {
+        LayoutParams layoutParams;
+        layoutParams = (LayoutParams) getLayoutParams();
+        int leftMargin = getLeft();
+        int topMargin = getTop();
+        ViewParent parent = getParent();
+        if (parent != null) {
+            ViewGroup viewGroup = (ViewGroup) parent;
+            viewGroup.removeView(this);
+            layoutParams.leftMargin = leftMargin;
+            layoutParams.topMargin = topMargin;
+            viewGroup.addView(this, layoutParams);
+        }
+    }
+
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
 
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
+                hasBringToTop = false;
                 Log.e(tag, "onInterceptTouchEvent:" + "ACTION_DOWN");
-                return false;//父布局拦截事件
+                setStartPoint(ev.getX(), ev.getY());
+                return false;
 
             case MotionEvent.ACTION_MOVE:   //表示父类需要
                 Log.e(tag, "onInterceptTouchEvent:" + "ACTION_MOVE");
@@ -177,7 +190,7 @@ public class OsdWarpView extends RelativeLayout {
         popupWindow = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         popHeight = layout.getMeasuredHeight();
         popWidth = layout.getMeasuredWidth();
-        Log.e("OsdWarpView", "popHeight:" + popHeight + ":::popWidth" + popWidth);
+        Log.e(tag, "popHeight:" + popHeight + ":::popWidth" + popWidth);
         int offSetY = getOffSetY();
         popupWindow.showAsDropDown(this, (getWidth() - popWidth) / 2, offSetY);
         layout.findViewById(R.id.lock_self).setOnClickListener(new OnClickListener() {
@@ -191,6 +204,7 @@ public class OsdWarpView extends RelativeLayout {
             }
         });
         setSelected(true);
+
     }
 
     @Override
@@ -242,6 +256,8 @@ public class OsdWarpView extends RelativeLayout {
                 View child = viewGroup.getChildAt(i);
                 if (child instanceof OsdWarpView) {
                     ((OsdWarpView) child).closeSelfAndChildWindow();
+                }else{
+                    child.clearFocus();
                 }
             }
         }
