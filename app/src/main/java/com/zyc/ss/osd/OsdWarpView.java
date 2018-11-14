@@ -16,7 +16,7 @@ import android.widget.RelativeLayout;
  */
 
 public class OsdWarpView extends RelativeLayout {
-    public String tag = "OsdWarpView@" + Integer.toHexString(this.hashCode());
+    public String mTag = "OsdWarpView@" + Integer.toHexString(this.hashCode());
     PopupWindow popupWindow;
     int popupWindowMargin = 20;
     private boolean hasMove;
@@ -35,6 +35,7 @@ public class OsdWarpView extends RelativeLayout {
     public OsdWarpView(Context context) {
         super(context);
         setBackgroundResource(R.drawable.warp_view_bg);
+        // setPadding(5,5,5,5);
         setWillNotDraw(false);
     }
 
@@ -62,14 +63,12 @@ public class OsdWarpView extends RelativeLayout {
         float currY = event.getY();
         switch (event.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                Log.e(tag, "ACTION_DOWN");
+                Log.e(mTag, "ACTION_DOWN");
                 setStartPoint(currX, currY);
                 return true;
-            case MotionEvent.ACTION_CANCEL:
-                Log.e(tag, "ACTION_CANCEL");
-                break;
+
             case MotionEvent.ACTION_MOVE:
-                Log.e(tag, "ACTION_MOVE");
+                Log.e(mTag, "ACTION_MOVE");
                 if (mode == MODE_FORBID_MOVE) {
                     return false;
                 }
@@ -81,10 +80,10 @@ public class OsdWarpView extends RelativeLayout {
                     }
                 }
                 if (hasMove) {
-                    //  Log.e(tag, getLeft() + ":::" + getTop());
+                    //  Log.e(mTag, getLeft() + ":::" + getTop());
                     float dx = currX - startX;
                     float dy = currY - startY;
-                    //     Log.e(tag, "dx" + dx);
+                    //     Log.e(mTag, "dx" + dx);
                     int left = getLeft() + (int) dx;
                     int top = getTop() + (int) dy;
                     int right = getRight() + (int) dx;
@@ -108,7 +107,7 @@ public class OsdWarpView extends RelativeLayout {
                     layoutParams = (LayoutParams) getLayoutParams();
                     layoutParams.setMargins(left, top, 0, 0);
                     //layout(left, top, right, bottom);
-                    //  Log.e(tag, "left " + left + " top" + top);
+                    //  Log.e(mTag, "left " + left + " top" + top);
                     setLayoutParams(layoutParams);
                     setAlpha(0.5f);
                     if (popupWindow != null && popupWindow.isShowing()) {
@@ -119,8 +118,10 @@ public class OsdWarpView extends RelativeLayout {
 
                 }
                 break;
+            case MotionEvent.ACTION_CANCEL:
+                Log.e(mTag, "ACTION_CANCEL");
+                break;
             case MotionEvent.ACTION_UP:
-                interceptChildEvent = false;
                 if (!hasMove) {
                     performClick();
                     showPopupWindow();
@@ -128,7 +129,7 @@ public class OsdWarpView extends RelativeLayout {
                 setAlpha(1.0f);
                 hasMove = false;
 
-                Log.e(tag, "ACTION_UP");
+                Log.e(mTag, "ACTION_UP");
                 break;
 
         }
@@ -136,7 +137,7 @@ public class OsdWarpView extends RelativeLayout {
     }
 
     private void setStartPoint(float currX, float currY) {
-        Log.e(tag, "setStartPoint");
+        Log.e(mTag, "setStartPoint");
         startX = currX;
         startY = currY;
     }
@@ -164,16 +165,16 @@ public class OsdWarpView extends RelativeLayout {
         switch (ev.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 hasBringToTop = false;
-                Log.e(tag, "onInterceptTouchEvent:" + "ACTION_DOWN");
+                Log.e(mTag, "onInterceptTouchEvent:" + "ACTION_DOWN");
                 setStartPoint(ev.getX(), ev.getY());
                 return false;
 
             case MotionEvent.ACTION_MOVE:   //表示父类需要
-                Log.e(tag, "onInterceptTouchEvent:" + "ACTION_MOVE");
-                return true;
+                Log.e(mTag, "onInterceptTouchEvent:" + "ACTION_MOVE");
+                return !isSelected();
             case MotionEvent.ACTION_UP:
-                Log.e(tag, "onInterceptTouchEvent:" + "ACTION_UP");
-                return false;
+                Log.e(mTag, "onInterceptTouchEvent:" + "ACTION_UP");
+                return !isSelected();
             default:
                 break;
         }
@@ -190,9 +191,9 @@ public class OsdWarpView extends RelativeLayout {
         popupWindow = new PopupWindow(layout, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         popHeight = layout.getMeasuredHeight();
         popWidth = layout.getMeasuredWidth();
-        Log.e(tag, "popHeight:" + popHeight + ":::popWidth" + popWidth);
+        Log.e(mTag, "popHeight:" + popHeight + ":::popWidth" + popWidth);
         int offSetY = getOffSetY();
-        popupWindow.showAsDropDown(this, (getWidth() - popWidth) / 2, offSetY);
+
         layout.findViewById(R.id.lock_self).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -203,7 +204,19 @@ public class OsdWarpView extends RelativeLayout {
                 }
             }
         });
+        popupWindow.showAsDropDown(this, (getWidth() - popWidth) / 2, offSetY);
         setSelected(true);
+        for (int i = 0; i < getChildCount(); i++) {
+            View childAt = getChildAt(i);
+            if (childAt instanceof DragEditText) {
+                childAt.setFocusable(true);
+                childAt.setFocusableInTouchMode(true);
+                childAt.requestFocus();
+                childAt.findFocus();
+                Log.e(mTag, "setFocusable true");
+            }
+
+        }
 
     }
 
@@ -216,22 +229,26 @@ public class OsdWarpView extends RelativeLayout {
         return getTop() >= minYSpace ? -(popHeight + getHeight() + popupWindowMargin) : popupWindowMargin;
     }
 
-    private void closeSelfWindow() {
+    private boolean closeSelfWindow() {
+        setSelected(false);
         if (popupWindow != null && popupWindow.isShowing()) {
             popupWindow.dismiss();
             popupWindow = null;
+            return true;
         }
-        setSelected(false);
+        return false;
+
     }
 
     public void requestCloseAllWindow() {
-        ViewParent parent = getRootParent();
-        if (parent != null) {
-            dispatchCloseAllWindow();
-        } else {
-            closeSelfAndChildWindow();
+        if (!closeSelfWindow()) {
+            ViewParent parent = getRootParent();
+            if (parent != null) {
+                dispatchCloseAllWindow();
+            } else {
+                closeSelfAndChildWindow();
+            }
         }
-
     }
 
     public ViewParent getRootParent() {
@@ -256,19 +273,24 @@ public class OsdWarpView extends RelativeLayout {
                 View child = viewGroup.getChildAt(i);
                 if (child instanceof OsdWarpView) {
                     ((OsdWarpView) child).closeSelfAndChildWindow();
-                }else{
-                    child.clearFocus();
                 }
             }
         }
     }
 
     private void closeSelfAndChildWindow() {
+        Log.e(mTag, "closeSelfAndChildWindow");
         closeSelfWindow();
         for (int i = 0; i < getChildCount(); i++) {
             View child = getChildAt(i);
             if (child instanceof OsdWarpView) {
                 ((OsdWarpView) child).closeSelfAndChildWindow();
+            } else {
+                if (child instanceof DragEditText) {
+                    child.setFocusable(false);
+                    Log.e(mTag, "setFocusable false");
+                }
+
             }
         }
     }

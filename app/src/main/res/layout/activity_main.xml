@@ -6,10 +6,21 @@
     android:layout_height="match_parent"
     tools:context="com.zyc.ss.osd.MainActivity">
 
-    <com.zyc.ss.osd.OsdRelativeLayout
-        android:id="@+id/osdRelativeLayout"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent">
+
+        <com.zyc.ss.osd.OsdRelativeLayout
+            android:id="@+id/osdRelativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+           />
+
+        <ImageView
+            android:id="@+id/iv_"
+            android:layout_width="100dp"
+            android:layout_height="100dp" />
+    </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="150dp"

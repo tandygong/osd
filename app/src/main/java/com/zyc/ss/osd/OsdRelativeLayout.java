@@ -8,7 +8,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 /**
  * Created by Administrator on 2017/12/10.
@@ -17,57 +16,65 @@ import android.widget.TextView;
 public class OsdRelativeLayout extends RelativeLayout {
     private String tag = getClass().getSimpleName();
 
-    public OsdRelativeLayout(Context context) {
-        super(context);
+    @Override
+    protected void onFinishInflate() {
+        super.onFinishInflate();
         init();
-
     }
 
-    private void init() {
-        OsdWarpView osdPanel = new OsdWarpView(getContext());
-        osdPanel.tag = "OsdViewParent";
+    public OsdRelativeLayout(Context context) {
+        super(context);
 
-        TextView textView = new TextView(getContext());
-        textView.setCursorVisible(true);
-        textView.setHint("你的号大");
-       // textView.setText("Hello");
-
-
-        OsdWarpView warpTextView = new OsdWarpView(getContext());
-        warpTextView.tag = "osdTextView";
-        warpTextView.addView(textView);
-        osdPanel.addView(warpTextView);
-
-
-        RelativeLayout.LayoutParams layoutParams1 = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-        ImageView imageView = new ImageView(getContext());
-        imageView.setImageResource(R.mipmap.ic_launcher_round);
-        layoutParams1.addRule(RelativeLayout.BELOW, warpTextView.getId());
-        layoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        OsdWarpView osdImageView = new OsdWarpView(getContext());
-        osdImageView.tag = "osdImageView";
-        osdImageView.addView(imageView);
-
-        osdPanel.addView(osdImageView);
-        osdPanel.setBackgroundResource(R.drawable.warp_view_panel_bg);
-
-        addView(osdPanel, 700, 700);
     }
 
     public OsdRelativeLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        init();
+
     }
 
     public OsdRelativeLayout(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public OsdRelativeLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
-        init();
+    }
+
+
+    private void init() {
+        OsdWarpView osdPanel = new OsdWarpView(getContext());
+        osdPanel.mTag = "OsdPanelView";
+
+        DragEditText dragEditText = new DragEditText(getContext());
+        dragEditText.setCursorVisible(true);
+        dragEditText.setHint("你的号大");
+        dragEditText.setBackgroundResource(R.drawable.bg_edittext);
+        dragEditText.setPadding(0, 0, 0, 0);
+        // textView.setText("Hello");
+
+
+        OsdWarpView warpTextView = new OsdWarpView(getContext());
+        warpTextView.mTag = "OsdTextWarpedView";
+        warpTextView.addView(dragEditText);
+        osdPanel.addView(warpTextView);
+
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        ImageView imageView = new ImageView(getContext());
+        imageView.setLayoutParams(new LayoutParams(200, 200));
+        imageView.setImageResource(R.mipmap.ic_launcher_round);
+        layoutParams.addRule(RelativeLayout.BELOW, warpTextView.getId());
+        //    layoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        OsdWarpView warpImageView = new OsdWarpView(getContext());
+        //  warpImageView.setLayoutParams(layoutParams);
+        warpImageView.mTag = "OsdImageWarpedView";
+        warpImageView.addView(imageView);
+
+
+        osdPanel.addView(warpImageView);
+        osdPanel.setBackgroundResource(R.drawable.warp_view_panel_bg);
+
+        addView(osdPanel, 700, 700);
     }
 
 
